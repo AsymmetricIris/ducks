@@ -18,37 +18,51 @@ trait Flying {
     fn fly(&self);
 }
 
-fn fly_flap_flap() {
+fn fly_flap_flap(this_duck: &Duck) {
     println!("Flap flap flap");
 }
 
-fn fly_blast_off() {
+fn fly_blast_off(this_duck: &Duck) {
     println!("Blast off");
 }
 
-fn fly_cant_fly() {
+fn fly_cant_fly(this_duck: &Duck) {
     println!("Can't fly");
 }
 
+trait Quacking {
+    fn quack(&self);
+}
+
+fn quack_vanilla(this_duck: &Duck) {
+    println!("Quack!");
+}
+
+fn quack_squeak(this_duck: &Duck) {
+    println!("Squeak!");
+}
+
 struct Duck {
-    fly_behavior: fn(&dyn Flying),
+    fly_behavior: fn(&Duck),
+    quack_behavior: fn(&Duck),
     colour:Colour,
 }
 
 impl Flying for Duck {
     fn fly(&self) {
-        (self.fly_behavior)(&self);
+        (self.fly_behavior)(self);
+    }
+}
+
+impl Quacking for Duck {
+    fn quack(&self) {
+        (self.quack_behavior)(self);
     }
 }
 
 impl Duck {
-    fn new(fly_behavior: fn(&dyn Flying)) -> Self {
-        Duck { fly_behavior, colour: Colour::Red }
-    }
-
-    fn quack(&self) -> ()
-    {
-        println!("Quack");
+    fn new(fly_behavior: fn(&Duck), quack_behavior: fn(&Duck)) -> Self {
+        Duck { fly_behavior, quack_behavior, colour: Colour::Red }
     }
 
     fn tell_colour(&self) -> ()
@@ -57,17 +71,18 @@ impl Duck {
     }
 }
 
-fn main() {
-    let duck1 = Duck::new(fly_flap_flap);
-    let duck2 = Duck::new(fly_blast_off);
-    let duck3 = Duck::new(fly_flap_flap);
-    let duck4 = Duck::new(fly_blast_off);
-    let rubber_ducky = Duck::new(fly_cant_fly);
-
+fn main() {  
+    let duck1: Duck = Duck::new(fly_flap_flap, quack_vanilla);
+    let duck2: Duck = Duck::new(fly_blast_off, quack_vanilla);
+    let duck3: Duck = Duck::new(fly_flap_flap, quack_vanilla);
+    let duck4: Duck = Duck::new(fly_blast_off, quack_vanilla);
+    let rubber_ducky: Duck = Duck::new(fly_cant_fly, quack_squeak);
+    
     let ducks: Vec<&Duck> = vec![&duck1, &duck2, &duck3, &duck4, &rubber_ducky];
 
     for duck in ducks {
         duck.fly();
+        duck.quack();
     }
 
     duck2.quack();
